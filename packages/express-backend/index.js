@@ -34,6 +34,10 @@ const users = {
     ]
   };
 
+  function generateRandomId() {
+    return Math.random().toString(36).substr(2, 6);
+  }
+
 const findUserByName = (name) => {
     return users["users_list"].filter(
         (user) => user["name"] === name
@@ -41,13 +45,21 @@ const findUserByName = (name) => {
 };
 const findUserById = (id) =>
     users["users_list"].find((user) => user["id"] === id);
+
 const addUser = (user) => {
-    users["users_list"].push(user);
-    return user;
+    let id = user.id;
+    if (!user.id) {
+        id = generateRandomId();
+    }
+    const new_user = { "id": id, "name": user.name, "job": user.job };
+    users["users_list"].push(new_user);
+    return new_user;
   };
+
   function getUsersByNameAndJob(name, job) {
     return users.users_list.filter((user) => user.name === name && user.job === job);
   }
+
 const deleteUser = (id) => {
     users["users_list"] = users["users_list"].filter(
         (user) => user["id"] !== id
@@ -84,10 +96,10 @@ app.get("/users/:id", (req, res) => {
   });
 
     app.post("/users", (req, res) => {
-    const userToAdd = req.body;
-    addUser(userToAdd);
-    res.send();
-  });
+      const userToAdd = req.body;
+      const addedUser = addUser(userToAdd);
+      res.status(201).send(addedUser);
+    });
 
   app.delete("/users/:id", (req, res) => {
     const id = req.params["id"];
